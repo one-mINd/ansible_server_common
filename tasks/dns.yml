@@ -34,3 +34,24 @@
     state: present
   loop: "{{ etc_hosts }}"
   when: etc_hosts | length > 0
+  tags:
+    - etc_hosts
+
+- name: Remove - update_etc_hosts when update_etc_hosts is false
+  ansible.builtin.lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^\s*-\s*update_etc_hosts\s*$'
+    state: absent
+  when: not (update_etc_hosts | bool)
+  tags:
+    - etc_hosts
+
+- name: Ensure - update_etc_hosts exists when update_etc_hosts is true
+  ansible.builtin.lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^\s*-\s*update_etc_hosts\s*$'
+    line: '  - update_etc_hosts'
+    insertafter: '^cloud_init_modules:'
+  when: update_etc_hosts | bool
+  tags:
+    - etc_hosts
